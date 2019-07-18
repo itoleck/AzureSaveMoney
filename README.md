@@ -3,7 +3,7 @@ PowerShell module to report on and opportunity to delete unused Azure resources 
 
 PowerShell Gallery URL; https://www.powershellgallery.com/packages/AzureSaveMoney
 
-Project available here; https://itoleck.visualstudio.com/_git/AzureSaveMoney
+Project available here; https://github.com/itoleck/AzureSaveMoney.git
 
 Report on the following resource types:
 
@@ -56,7 +56,7 @@ PS> Install-Module -Name AzureSaveMoney
 
 Alternatively,
 
-Download the .psm1 PowerShell module from the repository; https://itoleck.visualstudio.com/_git/AzureSaveMoney and copy to your local computer.
+Download the .psm1 PowerShell module from the repository; https://github.com/itoleck/AzureSaveMoney and copy to your local computer.
 
 Install-Module -Path <path to AzureSaveMoney.psm1>
 
