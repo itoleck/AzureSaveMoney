@@ -903,13 +903,19 @@ function global:Get-AzSMVMScaleinfo {
       foreach ($a in $avg) {
         $t=$t+$a.Average
       }
-      $cputimeavg=$t/$avg.Count
+      try {
+        $cputimeavg=$t/$avg.Count
+      } catch {}
+      
 
 
       if ($avg.Count -lt 5) {
         $vmusage = 0
       } else {
-        $vmusage=($avg.Average |Measure-Object -Average).Average
+        try{
+          $vmusage=($avg.Average |Measure-Object -Average).Average
+        }catch{}
+        
       }
 
 
