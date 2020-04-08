@@ -45,6 +45,18 @@ Unconnected Virtual Network Gateways
 
 Expired Webhooks
 
+Virtual Machine performance information for manual scaling
+
+Unused App Service Plans
+
+Empty subnets
+
+Disabled Service Bus Queues
+
+Batch Accounts without applications
+
+Virtual Machines not deleted after generalizing and imaging
+
 Includes ability to report on all unused resources in a single command, Get-AzSMAllResources.
 
 
@@ -64,16 +76,16 @@ Examples:
 
 This will report all of the unused resource checks that are included in the module in a subscription.
 
-	Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000
+    Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000
 
 This will report only the unused Network Interfaces in a subscription.
 
-	Get-AzSMUnusedNICs -Subscription 00000000-0000-0000-0000-000000000000
+    Get-AzSMUnusedNICs -Subscription 00000000-0000-0000-0000-000000000000
 
 Most commands can be piped to remove the reported resources. Check get-help for notes on piping.
 This will remove all unused Network Security Groups from a subscription with confirmation.
 
-	Get-AzSMUnusedNSGs -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzureRmNetworkSecurityGroups
+    Get-AzSMUnusedNSGs -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzureRmNetworkSecurityGroups
 
 
 There is support for PowerShell help.

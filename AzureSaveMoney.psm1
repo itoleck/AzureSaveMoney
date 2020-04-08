@@ -92,6 +92,143 @@ function global:Get-AzSMUnusedNSGs {
   Return $nsg
 }
 
+function global:Get-AzSMEmptyBatchAccounts {
+
+  <#
+      .SYNOPSIS
+      Lists batch accounts with no applications in a subscription.
+      .DESCRIPTION
+      Lists batch accounts with no applications in a subscription.
+      .PARAMETER SubscriptionID
+      Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+      .OUTPUTS
+      AzureSaveMoney.MyRGandName
+      .EXAMPLE
+      Get-AzSMEmptyBatchAccounts -Subscription 00000000-0000-0000-0000-000000000000
+      Get a list of batch accounts with no applications in a subscription.
+      .EXAMPLE
+      .
+      .NOTES
+      *
+      *
+      .LINK
+  #>
+
+  [CmdletBinding(
+      DefaultParameterSetName='SubscriptionID',
+      ConfirmImpact='low'
+  )]
+
+  param(
+    [Parameter(Mandatory=$true)][string] $SubscriptionID
+  )
+
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
+  Write-Debug ('Subscription: {0}' -f $SubscriptionID)
+
+  $apps = New-Object System.Collections.ArrayList
+  $bas=Get-AzBatchAccount -WarningAction Ignore
+  foreach ($ba in $bas)
+    {
+      $a=Get-AzBatchApplication -ResourceGroupName $ba.ResourceGroupName -AccountName $ba.AccountName -WarningAction Ignore
+        
+        if ($a.Id.Length -lt 1) {
+            $ap=New-Object MyRGandName
+            $ap.RG=$ba.ResourceGroupName
+            $ap.Name=$ba.AccountName
+            $null = $apps.Add($ap)
+        }
+    }  
+  
+  Return $apps|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="AccountName";e="Name"}
+}
+
+function global:Get-AzSMVMsNotDeletedAfterImage {
+
+  <#
+      .SYNOPSIS
+      List virtual machines that were not deleted after a generalized image in a subscription.
+      .DESCRIPTION
+      List virtual machines that were not deleted after a generalized image in a subscription.
+      .PARAMETER SubscriptionID
+      Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+      .OUTPUTS
+      AzureSaveMoney.MyRGandName
+      .EXAMPLE
+      Get-AzSMVMsNotDeletedAfterImage -SubscriptionID 00000000-0000-0000-0000-000000000000
+      .NOTES
+      *
+      .LINK
+  #>
+
+  [CmdletBinding(
+      DefaultParameterSetName='SubscriptionID',
+      ConfirmImpact='Low'
+  )]
+
+  param(
+    [Parameter(Mandatory=$true)][string] $SubscriptionID
+  )
+
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
+  Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
+
+  $vms = New-Object System.Collections.ArrayList
+$images=Get-Azimage -WarningAction Ignore
+
+foreach ($image in $images)
+  {
+    $svm=Get-AzResource -ResourceId $image.SourceVirtualMachine.Id -ErrorAction Ignore -WarningAction Ignore
+    if ($svm){
+              $vm=New-Object MyRGandName
+              $vm.RG=$svm.ResourceGroupName
+              $vm.Name=$svm.Name
+              $vms.Add($vm)
+    }
+  }
+  Return $vms|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="VMName";e="Name"}
+}
+
+function global:Get-AzSMDisabledServiceBusQueues {
+
+  <#
+      .SYNOPSIS
+      Lists disabled Service Bus Queues in a subscription.
+      .DESCRIPTION
+      Lists disabled Service Bus Queues in a subscription.
+      .PARAMETER SubscriptionID
+      Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+      .OUTPUTS
+      Microsoft.Azure.Commands.ServiceBus.Models.PSQueueAttributes
+      .EXAMPLE
+      Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000
+      Get a list of disabled Service Bus Queues in a subscription.
+      .EXAMPLE
+      Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzServiceBusQueue -Confirm
+      Removes all disabled Service Bus Queues in a subscription.
+      .NOTES
+      *
+      *
+      .LINK
+  #>
+
+  [CmdletBinding(
+      DefaultParameterSetName='SubscriptionID',
+      ConfirmImpact='low'
+  )]
+
+  param(
+    [Parameter(Mandatory=$true)][string] $SubscriptionID
+  )
+
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
+  Write-Debug ('Subscription: {0}' -f $SubscriptionID)
+
+  $q=Get-AzResourceGroup|Get-AzServiceBusNamespace|ForEach-Object {Get-AzServiceBusQueue -ResourceGroupName $_.ResourceGroupName -Namespace $_.Name|Where-Object{$_.Status -eq "Disabled"}}
+  
+  Return $q
+}
+
 function global:Get-AzSMEmptySubnets {
 
   <#
@@ -1134,4 +1271,13 @@ function global:Get-AzSMAllResources {
   
     Write-Output 'Unused App Service Plans'
     Get-AzSMUnusedAppServicePlans -SubscriptionID $SubscriptionID
+
+    Write-Output 'Disabled Service Bus Queues'
+    Get-AzSMDisabledServiceBusQueues -SubscriptionID $SubscriptionID
+  
+    Write-Output 'Batch Accounts with no Applications'
+    Get-AzSMEmptyBatchAccounts -SubscriptionID $SubscriptionID
+
+    Write-Output 'Virtual Machines that have images. * VMs should be deleted after generalizing and imaging.'
+    Get-AzSMVMsNotDeletedAfterImage -SubscriptionID $SubscriptionID
 }
