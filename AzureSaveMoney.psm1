@@ -1148,7 +1148,7 @@ function global:Get-AzSMAppServicePlanScaleinfo {
   $rgs=Get-AzResourceGroup
   foreach ($r in $rgs)
   {
-    $vms=get-azvm -ResourceGroupName $r.ResourceGroupName
+    $vms=Get-AzAppServicePlan -ResourceGroupName $r.ResourceGroupName
     
     foreach ($vm in $vms) {
     
