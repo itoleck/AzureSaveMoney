@@ -1,5 +1,5 @@
 # Introduction
-PowerShell module to report on and an opportunity to delete unused Azure resources and save money.
+PowerShell module with 25+ commands to report on and an opportunity to delete unused Azure resources and save money.
 
 PowerShell Gallery URL; https://www.powershellgallery.com/packages/AzureSaveMoney
 
@@ -37,6 +37,8 @@ Old snapshots
 
 Load balancers with no backend pool
 
+Load balancers with no backend pool virtual machines
+
 Disabled Traffic Manager profiles
 
 Traffic Manager profiles with no endpoints
@@ -46,6 +48,8 @@ Unconnected Virtual Network Gateways
 Expired Webhooks
 
 Virtual Machine performance information for manual scaling
+
+App Service Plan performance information for manual scaling
 
 Unused App Service Plans
 

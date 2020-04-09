@@ -831,6 +831,43 @@ function global:Get-AzSMOldSnapshots{
     
     Return $snap
 }
+
+function global:Get-AzSMIlbNoBackendPoolVMs {
+
+  <#
+      .SYNOPSIS
+      List Internal load balancers that have no backend pool virtual machines in a subscription.
+      .DESCRIPTION
+      List Internal load balancers that have no backend pool virtual machines in a subscription.
+      .PARAMETER SubscriptionID
+      Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+      .OUTPUTS
+      Microsoft.Azure.Commands.Network.Models.PSLoadBalancer
+      .EXAMPLE
+      Get-AzSMIlbNoBackendPoolVMs -SubscriptionID 00000000-0000-0000-0000-000000000000
+      .NOTES
+      *CAN be piped to Remove-AzLoadBalancer.
+      .LINK
+  #>
+
+  [CmdletBinding(
+      DefaultParameterSetName='SubscriptionID',
+      ConfirmImpact='Low'
+  )]
+
+  param(
+    [Parameter(Mandatory=$true)][string] $SubscriptionID
+  )
+
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
+  Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
+
+    
+    $lbs=Get-AzLoadBalancer -WarningAction Ignore|Where-Object{$_.BackendAddressPools.BackendIpConfigurations -eq $null}
+
+    Return $lbs
+}
+
 function global:Get-AzSMIlbNoBackendPool {
 
   <#
@@ -1071,6 +1108,88 @@ function global:Get-AzSMExpiredWebhooks {
 
 }
 
+function global:Get-AzSMAppServicePlanScaleinfo {
+
+  <#
+      .SYNOPSIS
+      List all App Service Plan scaling recommendations for a subscription.
+      .DESCRIPTION
+      List all App Service Plan scaling recommendations for a subscription.
+      .PARAMETER SubscriptionID
+      Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+      .OUTPUTS
+      String recommendations.
+      .EXAMPLE
+      Get-AzSMAppServicePlanScaleinfo -Subscription 00000000-0000-0000-0000-000000000000
+      APPPLANNAME - Low average CPU usage detected (8.00125)%. Scale down VM size.
+      APPPLANNAME - Average CPU usage normal (64.4690909090909)%. Stay at current VM size.
+      APPPLANNAME - High average CPU use detected (84.2233333333333)%. Scale up VM size.
+      APPPLANNAME - No CPU data found. VM not running?
+      .NOTES
+      *CANNOT be piped to any Remove- Azure command.
+      High CPU uasage is > 80%
+      Low CPU usage is < 20%
+      Normal CPU usage is 20% - 79%
+      .LINK
+  #>
+
+  [CmdletBinding(
+      DefaultParameterSetName='SubscriptionID',
+      ConfirmImpact='Low'
+  )]
+
+  param(
+    [Parameter(Mandatory=$true)][string] $SubscriptionID
+  )
+
+  $null = Set-AzContext -SubscriptionId $SubscriptionID
+  Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
+  
+  $rgs=Get-AzResourceGroup
+  foreach ($r in $rgs)
+  {
+    $vms=get-azvm -ResourceGroupName $r.ResourceGroupName
+    
+    foreach ($vm in $vms) {
+    
+      $met=Get-AzMetric -ResourceId $vm.Id -WarningAction SilentlyContinue
+      $avg=$met.Data|Where-Object {$_.Average -gt 0}|Select-Object Average
+
+      foreach ($a in $avg) {
+        $t=$t+$a.Average
+      }
+      try {
+        $cputimeavg=$t/$avg.Count
+      } catch {}
+      
+
+
+      if ($avg.Count -lt 5) {
+        $vmusage = 0
+      } else {
+        try{
+          $vmusage=($avg.Average |Measure-Object -Average).Average
+        }catch{}
+        
+      }
+
+
+      if ($vmusage -eq $null -or $vmusage -eq 0){Write-Output ('{0} - Not enough CPU usage data. Is app not running or just started?' -f $vm.Name)} else {
+        if ($vmusage -gt 79) {
+          Write-Output ('{1} - High average CPU use detected ({0})%. Scale up App Service Plan size.' -f $vmusage,$vm.Name)
+        } else {
+          if ($vmusage -lt 20) {
+            Write-Output ('{1} - Low average CPU usage detected ({0})%. Scale down App Service Plan size.' -f $vmusage,$vm.Name)
+          } else {
+            Write-Output ('{1} - Average CPU usage normal ({0})%. Stay at current App Service Plan size.' -f $vmusage,$vm.Name)
+          }
+        }
+      }
+    }
+  }
+
+}
+
 function global:Get-AzSMVMScaleinfo {
 
   <#
@@ -1245,7 +1364,7 @@ function global:Get-AzSMAllResources {
     Write-Output ('Old Snapshots older than {0} days:' -f $Days)
     Get-AzSMOldSnapshots -Subscription $SubscriptionID
     
-    Write-Output 'ILBs with no backend pools:'
+    Write-Output 'Load balancers with no backend pools:'
     Get-AzSMIlbNoBackendPool -Subscription $SubscriptionID
 
     Write-Output 'Disabled TrafficManager Profiles:'
@@ -1254,30 +1373,36 @@ function global:Get-AzSMAllResources {
     Write-Output 'TrafficManager Profiles With No Endpoints:'
     Get-AzSMTrafficManagerProfilesWithNoEndpoints -Subscription $SubscriptionID
 
-    Write-Output 'Old Network Watcher packet captures'
+    Write-Output 'Old Network Watcher packet captures:'
     Get-AzSMOldNetworkCaptures -SubscriptionID $SubscriptionID
 
-    Write-Output 'Unconnected Virtual Network Gateway Connections'
+    Write-Output 'Unconnected Virtual Network Gateway Connections:'
     Get-AzSMUnconnectedVirtualNetworkGateways -SubscriptionID $SubscriptionID
 
-    Write-Output 'Expired Webhooks'
+    Write-Output 'Expired Webhooks:'
     Get-AzSMExpiredWebhooks -SubscriptionID $SubscriptionID
   
-    Write-Output 'VM CPU scaling info'
+    Write-Output 'VM CPU scaling info:'
     Get-AzSMVMScaleinfo -SubscriptionID $SubscriptionID
 
-    Write-Output 'Empty Subnets'
+    Write-Output 'Empty Subnets:'
     Get-AzSMEmptySubnets -SubscriptionID $SubscriptionID
   
-    Write-Output 'Unused App Service Plans'
+    Write-Output 'Unused App Service Plans:'
     Get-AzSMUnusedAppServicePlans -SubscriptionID $SubscriptionID
 
-    Write-Output 'Disabled Service Bus Queues'
+    Write-Output 'Disabled Service Bus Queues:'
     Get-AzSMDisabledServiceBusQueues -SubscriptionID $SubscriptionID
   
-    Write-Output 'Batch Accounts with no Applications'
+    Write-Output 'Batch Accounts with no Applications:'
     Get-AzSMEmptyBatchAccounts -SubscriptionID $SubscriptionID
 
-    Write-Output 'Virtual Machines that have images. * VMs should be deleted after generalizing and imaging.'
+    Write-Output 'Virtual Machines that have images. * VMs should be deleted after generalizing and imaging.:'
     Get-AzSMVMsNotDeletedAfterImage -SubscriptionID $SubscriptionID
+
+    Write-Output 'Load balancers with no backend pool VMs:'
+    Get-AzSMIlbNoBackendPoolVMs -Subscription $SubscriptionID
+
+    Write-Output 'App Service Plan CPU scaling info:'
+    Get-AzSMAppServicePlanScaleinfo -SubscriptionID $SubscriptionID
 }
