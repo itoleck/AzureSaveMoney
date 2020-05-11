@@ -30,6 +30,9 @@ function global:Get-AzSMUnusedNICs {
       .EXAMPLE
       Get-AzSMUnusedNICs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzNetworkInterface
       Remove unused network interfaces in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMUnusedNICs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzNetworkInterface -force
+      Remove unused network interfaces in a subscription without confirmation.
       .NOTES
       * CAN be piped to Remove-AzNetworkInterface.
       * When piping to remove resources, include the -force parameter to supress prompts.
@@ -68,7 +71,10 @@ function global:Get-AzSMUnusedNSGs {
       Get a list of unused network security groups in a subscription.
       .EXAMPLE
       Get-AzSMUnusedNSGs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzNetworkSecurityGroup
-      Remove unused network security groups in a subscription.
+      Remove unused network security groups in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMUnusedNSGs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzNetworkSecurityGroup -force
+      Remove unused network security groups in a subscription without confirmation.
       .NOTES
       * CAN be piped to Remove-AzNetworkSecurityGroup.
       * When piping to remove resources, include the -force parameter to supress prompts.
@@ -87,7 +93,7 @@ function global:Get-AzSMUnusedNSGs {
     $null = Set-AzContext -SubscriptionId $SubscriptionID
   Write-Debug ('Subscription: {0}' -f $SubscriptionID)
 
-  $nsg=Get-AzNetworkSecurityGroup|Where-Object{!$_.NetworkInterfaces}
+  $nsg=Get-AzNetworkSecurityGroup|Where-Object{!$_.NetworkInterfaces -and !$_.Subnets}
 	
   Return $nsg
 }
@@ -109,7 +115,7 @@ function global:Get-AzSMEmptyBatchAccounts {
       .EXAMPLE
       .
       .NOTES
-      *
+      * CANNOT pipe to Remove- command. Output is text based only.
       *
       .LINK
   #>
@@ -157,7 +163,7 @@ function global:Get-AzSMVMsNotDeletedAfterImage {
       .EXAMPLE
       Get-AzSMVMsNotDeletedAfterImage -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *
+      * CANNOT pipe to Remove- command. Output is text based only.
       .LINK
   #>
 
@@ -204,11 +210,14 @@ function global:Get-AzSMDisabledServiceBusQueues {
       Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000
       Get a list of disabled Service Bus Queues in a subscription.
       .EXAMPLE
-      Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzServiceBusQueue -Confirm
-      Removes all disabled Service Bus Queues in a subscription.
+      Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzServiceBusQueue
+      Removes all disabled Service Bus Queues in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMDisabledServiceBusQueues -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzServiceBusQueue -force
+      Removes all disabled Service Bus Queues in a subscription without confirmation.
       .NOTES
-      *
-      *
+      * CAN be piped to Remove-AzServiceBusQueue.
+      * When piping to remove resources, include the -force parameter to supress prompts.
       .LINK
   #>
 
@@ -264,7 +273,7 @@ function global:Get-AzSMEmptySubnets {
   Write-Debug ('Subscription: {0}' -f $SubscriptionID)
 
   $vn=Get-AzVirtualNetwork
-  $emptysubnets=$vn|?{$_.Subnets.IpConfigurations.count -eq 0}|select-object @{n="VNet";e="Name"},Subnets
+  $emptysubnets=$vn|Where-Object{$_.Subnets.IpConfigurations.count -eq 0}|select-object @{n="VNet";e="Name"},Subnets
   
   Return $emptysubnets
 }
@@ -285,7 +294,10 @@ function global:Get-AzSMUnusedAppServicePlans {
       Get a list of unused App Service Plans in a subscription.
       .EXAMPLE
       Get-AzSMUnusedAppServicePlans -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzAppServicePlan
-      Remove unused App Service Plans in a subscription.
+      Remove unused App Service Plans in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMUnusedAppServicePlans -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzAppServicePlan -force
+      Remove unused App Service Plans in a subscription without confirmation.
       .NOTES
       * CAN be piped to Remove-AzAppServicePlan.
       * When piping to remove resources, include the -force parameter to supress prompts.
@@ -325,7 +337,10 @@ function global:Get-AzSMUnusedPIPs {
       Gets a list of unused public IP addresses in a subscription.
       .EXAMPLE
       Get-AzSMUnusedPIPs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzPublicIpAddress
-      Remove unused public IP addresses in a subscription.
+      Remove unused public IP addresses in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMUnusedPIPs -Subscription 00000000-0000-0000-0000-000000000000 | Remove-AzPublicIpAddress -force
+      Remove unused public IP addresses in a subscription without confirmation.
       .NOTES
       * CAN be piped to Remove-AzPublicIpAddress.
       * When piping to remove resources, include the -force parameter to supress prompts.
@@ -363,7 +378,7 @@ function global:Get-AzSMDisabledAlerts {
       Get-AzSMDisabledAlerts -Subscription 00000000-0000-0000-0000-000000000000
       Get a list of disabled classic alerts in a subscription.
       .NOTES
-      * CANNOT be piped to Remove-AzAlertRule.
+      * CANNOT pipe to Remove- command. Output is text based only.
       .LINK
   #>
 
@@ -409,7 +424,7 @@ function global:Get-AzSMDisabledLogAlerts{
       Get-AzSMDisabledLogAlerts -Subscription 00000000-0000-0000-0000-000000000000
       Get a list of disabled Activity Log alerts in a subscription.
       .NOTES
-      *CANNOT be piped to Remove-AzActivityLogAlert.
+      * CANNOT pipe to Remove- command. Output is text based only.
       .LINK
   #>
 
@@ -454,9 +469,12 @@ function global:Get-AzSMEmptyResourceGroups {
       Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup
       .EXAMPLE
       Get-AzSMEmptyResourceGroups -SubscriptionID 00000000-0000-0000-0000-000000000000
-      Get a list of empty Resource Groups in a subscription.
+      Get a list of empty Resource Groups in a subscription with confirmation.
+      .EXAMPLE
+      Get-AzSMEmptyResourceGroups -SubscriptionID 00000000-0000-0000-0000-000000000000 -force
+      Get a list of empty Resource Groups in a subscription without confirmation.
       .NOTES
-      *CAN be piped to Remove-AzResourceGroup.
+      * CAN be piped to Remove-AzResourceGroup.
       .LINK
   #>
 
@@ -496,10 +514,12 @@ function global:Get-AzSMUnusedAlertActionGroups {
       Microsoft.Azure.Commands.Insights.OutputClasses.PSActionGroupResource
       .EXAMPLE
       Get-AzSMUnusedAlertActionGroups -SubscriptionID 00000000-0000-0000-0000-000000000000
+      Remove Action Groups with confirmation.
       .EXAMPLE
-      Get-AzSMUnusedAlertActionGroups -SubscriptionID 00000000-0000-0000-0000-000000000000 | Remove-AzActionGroup -Confirm
+      Get-AzSMUnusedAlertActionGroups -SubscriptionID 00000000-0000-0000-0000-000000000000 | Remove-AzActionGroup -force
+      Remove Action Groups without confirmation.
       .NOTES
-      *CAN be piped to Remove-AzActionGroup.
+      * CAN be piped to Remove-AzActionGroup.
       .LINK
   #>
 
@@ -565,7 +585,7 @@ function global:Get-AzSMUnusedRouteTables {
       .EXAMPLE
       Get-AzSMUnusedRouteTables -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzRouteTable.
+      * CAN be piped to Remove-AzRouteTable.
       .LINK
   #>
 
@@ -583,11 +603,12 @@ function global:Get-AzSMUnusedRouteTables {
 
   $routelist = New-Object System.Collections.ArrayList
   $routes=Get-AzRouteTable
-  $routes|ForEach-Object {
-    if ($route.Subnets.Count -eq 0) {
-            $null = $routelist.add($_)
-        }
-  }
+  foreach ($route in $routes)
+    {
+      if ($route.Subnets.Count -eq 0) {
+        $null = $routelist.add($route)
+      }
+    }
 
     Return $routelist
 }
@@ -605,7 +626,7 @@ function global:Get-AzSMVNetsWithoutSubnets {
       .EXAMPLE
       Get-AzSMVNetsWithoutSubnets -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzVirtualNetwork
+      * CAN be piped to Remove-AzVirtualNetwork
       .LINK
   #>
 
@@ -649,7 +670,7 @@ function global:Get-AzSMOldDeployments{
       .EXAMPLE
       Get-AzSMOldDeployments -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzResourceGroupDeployment.
+      * CAN be piped to Remove-AzResourceGroupDeployment.
       .LINK
   #>
 
@@ -684,7 +705,7 @@ function global:Get-AzSMUnusedDisks {
       .EXAMPLE
       Get-AzSMUnusedDisks -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzDisk.
+      * CAN be piped to Remove-AzDisk.
       .LINK
   #>
 
@@ -718,7 +739,7 @@ function global:Get-AzSMEmptyAADGroups {
       .EXAMPLE
       Get-AzSMEmptyAADGroups -TenantID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *It is not recommended to pipe command to remove AAD groups as there are built-in and synced groups that may have not members.
+      * It is not recommended to pipe command to remove AAD groups as there are built-in and synced groups that may have not members.
       .LINK
   #>
 
@@ -767,7 +788,7 @@ function global:Get-AzSMDisabledLogicApps {
       .EXAMPLE
       Get-AzSMDisabledLogicApps -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CANNOT be piped to Remove-AzLogicApp.
+      * CANNOT pipe to Remove- command. Output is text based only.
       .LINK
   #>
 
@@ -810,7 +831,7 @@ function global:Get-AzSMOldSnapshots{
       .EXAMPLE
       Get-AzSMOldSnapshots -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzSnapshot.
+      * CAN be piped to Remove-AzSnapshot.
       .LINK
   #>
 
@@ -846,7 +867,7 @@ function global:Get-AzSMIlbNoBackendPoolVMs {
       .EXAMPLE
       Get-AzSMIlbNoBackendPoolVMs -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzLoadBalancer.
+      * CAN be piped to Remove-AzLoadBalancer.
       .LINK
   #>
 
@@ -882,7 +903,7 @@ function global:Get-AzSMIlbNoBackendPool {
       .EXAMPLE
       Get-AzSMIlbNoBackendPool -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzLoadBalancer.
+      * CAN be piped to Remove-AzLoadBalancer.
       .LINK
   #>
 
@@ -916,7 +937,7 @@ function global:Get-AzSMDisabledTrafficManagerProfiles {
       .EXAMPLE
       Get-AzSMDisabledTrafficManagerProfiles -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzTrafficManagerProfile.
+      * CAN be piped to Remove-AzTrafficManagerProfile.
       .LINK
   #>
 
@@ -950,7 +971,7 @@ function global:Get-AzSMTrafficManagerProfilesWithNoEndpoints {
       .EXAMPLE
       Get-AzSMTrafficManagerProfilesWithNoEndpoints -SubscriptionID 00000000-0000-0000-0000-000000000000
       .NOTES
-      *CAN be piped to Remove-AzTrafficManagerProfile.
+      * CAN be piped to Remove-AzTrafficManagerProfile.
       .LINK
   #>
 
@@ -1028,7 +1049,7 @@ function global:Get-AzSMUnconnectedVirtualNetworkGateways {
       .EXAMPLE
       Get-AzSMUnconnectedVirtualNetworkGateways -SubscriptionID 00000000-0000-0000-0000-000000000000|Remove-AzVirtualNetworkGatewayConnection
       .NOTES
-      *CAN be piped to Remove-AzVirtualNetworkGatewayConnection.
+      * CAN be piped to Remove-AzVirtualNetworkGatewayConnection.
       .LINK
   #>
 
@@ -1080,7 +1101,7 @@ function global:Get-AzSMExpiredWebhooks {
       .EXAMPLE
       Get-AzSMExpiredWebhooks -SubscriptionID 00000000-0000-0000-0000-000000000000|Remove-AzAutomationWebhook
       .NOTES
-      *CAN be piped to Remove-AzAutomationWebhook.
+      * CAN be piped to Remove-AzAutomationWebhook.
       .LINK
   #>
 
@@ -1126,7 +1147,7 @@ function global:Get-AzSMAppServicePlanScaleinfo {
       APPPLANNAME - High average CPU use detected (84.2233333333333)%. Scale up VM size.
       APPPLANNAME - No CPU data found. VM not running?
       .NOTES
-      *CANNOT be piped to any Remove- Azure command.
+      * CANNOT be piped to any Remove- Azure command.
       High CPU uasage is > 80%
       Low CPU usage is < 20%
       Normal CPU usage is 20% - 79%
@@ -1208,7 +1229,7 @@ function global:Get-AzSMVMScaleinfo {
       VMNAME - High average CPU use detected (84.2233333333333)%. Scale up VM size.
       VMNAME - No CPU data found. VM not running?
       .NOTES
-      *CANNOT be piped to any Remove- Azure command.
+      * CANNOT be piped to any Remove- Azure command.
       High CPU uasage is > 80%
       Low CPU usage is < 20%
       Normal CPU usage is 20% - 79%
@@ -1289,10 +1310,10 @@ function global:Get-AzSMAllResources {
       .OUTPUTS
       Various objects.
       .EXAMPLE
-      Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000 -Tenant 00000000-0000-0000-0000-000000000000
+      Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000 -Tenant 00000000-0000-0000-0000-000000000000 -Days 31 > c:\temp\AzureSaveMoney.txt
       Gets a list of all supported unused and old resources in a tenant/subscription combination.
       .NOTES
-      *CANNOT be piped to any Remove- Azure command.
+      * CANNOT be piped to any Remove- Azure command.
       .LINK
   #>
 
