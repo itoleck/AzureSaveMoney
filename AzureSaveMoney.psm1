@@ -1195,7 +1195,7 @@ function global:Get-AzSMAppServicePlanScaleinfo {
       }
 
 
-      if ($vmusage -eq $null -or $vmusage -eq 0){Write-Output ('{0} - Not enough CPU usage data. Is app not running or just started?' -f $vm.Name)} else {
+      if ($null -eq $vmusage -or $vmusage -eq 0){Write-Output ('{0} - Not enough CPU usage data. Is app not running or just started?' -f $vm.Name)} else {
         if ($vmusage -gt 79) {
           Write-Output ('{1} - High average CPU use detected ({0})%. Scale up App Service Plan size.' -f $vmusage,$vm.Name)
         } else {
@@ -1277,7 +1277,7 @@ function global:Get-AzSMVMScaleinfo {
       }
 
 
-      if ($vmusage -eq $null -or $vmusage -eq 0){Write-Output ('{0} - Not enough CPU usage data. Is VM not running or just started?' -f $vm.Name)} else {
+      if ($null -eq $vmusage -or $vmusage -eq 0){Write-Output ('{0} - Not enough CPU usage data. Is VM not running or just started?' -f $vm.Name)} else {
         if ($vmusage -gt 79) {
           Write-Output ('{1} - High average CPU use detected ({0})%. Scale up VM size.' -f $vmusage,$vm.Name)
         } else {
