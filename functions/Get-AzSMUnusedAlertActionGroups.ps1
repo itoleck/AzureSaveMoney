@@ -51,7 +51,7 @@ function global:Get-AzSMUnusedAlertActionGroups {
       $ala=Get-AzActivityLogAlert -ResourceGroupName $rg.ResourceGroupName -WarningAction SilentlyContinue -ErrorAction SilentlyContinue -ErrorVariable $alerr
       if ($ala -and $alerr.count -lt 1) {
         foreach ($a in $ala) {
-          $as=$a.Actions.ActionGroups[0].ActionGroupId.Split('/')
+          $as=$a.Actions.ActionGroups[0].ActionGroupId.Split('/') #TODO: 'You cannot call a method on a null-valued expression.'
       
           $TempHoldActionGroup=New-Object MyRGandName
           $TempHoldActionGroup.RG=$rg.ResourceGroupName
@@ -61,11 +61,11 @@ function global:Get-AzSMUnusedAlertActionGroups {
         }
       }
     }
-      
+
     $unusedactiongroups=$actiongroups2|Where-Object{$actiongroups.Name -notcontains $_.Name}
   
     foreach ($alertactiongroup in $unusedactiongroups) {
-      Get-AzActionGroup -ResourceGroupName $alertactiongroup.RG -Name $alertactiongroup.Name
+      Get-AzActionGroup -ResourceGroupName $alertactiongroup.RG -Name $alertactiongroup.Name -WarningAction SilentlyContinue
     }
  }
  Export-ModuleMember -Function Get-AzSMUnusedAlertActionGroups

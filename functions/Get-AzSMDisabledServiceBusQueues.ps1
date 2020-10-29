@@ -36,7 +36,7 @@ function global:Get-AzSMDisabledServiceBusQueues {
       $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
-    $q=Get-AzResourceGroup|Get-AzServiceBusNamespace|ForEach-Object {Get-AzServiceBusQueue -ResourceGroupName $_.ResourceGroupName -Namespace $_.Name|Where-Object{$_.Status -eq "Disabled"}}
+    $q=Get-AzResourceGroup|Get-AzServiceBusNamespace|ForEach-Object {Get-AzServiceBusQueue -ResourceGroupName $_.ResourceGroup -Namespace $_.Name|Where-Object{$_.Status -eq "Disabled"}}
     
     Return $q
  }
