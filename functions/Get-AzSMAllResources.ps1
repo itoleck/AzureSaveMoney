@@ -139,4 +139,4 @@ function global:Get-AzSMAllResources {
       Get-AzSMEmptyNotificationHubNamespaces -SubscriptionID $SubscriptionID
   }
 
-  #Export-ModuleMember -Function Get-AzSMAllResources
+  Export-ModuleMember -Function Get-AzSMAllResources
