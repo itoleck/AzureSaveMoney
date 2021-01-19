@@ -28,14 +28,19 @@ function global:Get-AzSMOldNetworkCaptures {
   
     param(
       [Parameter(Mandatory=$true)][string] $SubscriptionID,
-          [int] $Days = 7
+      [Parameter(Mandatory=$true)][string] $ResourceGroupName,
+      [int] $Days = 7
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
   
-    $oldcaptures=Get-AzNetworkWatcher|Get-AzNetworkWatcherPacketCapture|Where-Object{$_.PacketCaptureStatus -ne 'Running' -and $_.CaptureStartTime -lt (Get-Date).AddDays(-$Days) }
-  
+    if ($ResourceGroupName.Length -gt 0) {
+      $oldcaptures=Get-AzNetworkWatcher -ResourceGroupName $ResourceGroupName|Get-AzNetworkWatcherPacketCapture|Where-Object{$_.PacketCaptureStatus -ne 'Running' -and $_.CaptureStartTime -lt (Get-Date).AddDays(-$Days) }
+    } else {
+      $oldcaptures=Get-AzNetworkWatcher|Get-AzNetworkWatcherPacketCapture|Where-Object{$_.PacketCaptureStatus -ne 'Running' -and $_.CaptureStartTime -lt (Get-Date).AddDays(-$Days) }
+    }
+
     Return $oldcaptures
-  }
-  Export-ModuleMember -Function Get-AzSMOldNetworkCaptures
+}
+Export-ModuleMember -Function Get-AzSMOldNetworkCaptures
