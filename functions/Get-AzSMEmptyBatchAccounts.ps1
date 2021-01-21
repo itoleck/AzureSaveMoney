@@ -7,6 +7,8 @@ function global:Get-AzSMEmptyBatchAccounts {
         Lists batch accounts with no applications in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         AzureSaveMoney.MyRGandName
         .EXAMPLE
@@ -26,15 +28,22 @@ function global:Get-AzSMEmptyBatchAccounts {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$true)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
     $apps = New-Object System.Collections.ArrayList
-    $bas=Get-AzBatchAccount -WarningAction Ignore
-    foreach ($ba in $bas)
+    
+    if ($ResourceGroupName.Length -gt 0) {
+      $bas=Get-AzBatchAccount -ResourceGroupName $ResourceGroupName -WarningAction Ignore
+    } else {
+      $bas=Get-AzBatchAccount -WarningAction Ignore
+      }
+
+      foreach ($ba in $bas)
       {
         $a=Get-AzBatchApplication -ResourceGroupName $ba.ResourceGroupName -AccountName $ba.AccountName -WarningAction Ignore
           
@@ -44,7 +53,7 @@ function global:Get-AzSMEmptyBatchAccounts {
               $ap.Name=$ba.AccountName
               $null = $apps.Add($ap)
           }
-      }  
+      }
     
     Return $apps|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="AccountName";e="Name"}
  }

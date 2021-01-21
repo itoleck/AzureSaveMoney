@@ -7,6 +7,8 @@ function global:Get-AzSMUnusedRouteTables {
         List unused route tables in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Network.Models.PSRouteTable
         .EXAMPLE
@@ -22,14 +24,21 @@ function global:Get-AzSMUnusedRouteTables {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$true)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
+    if ($ResourceGroupName.Length -gt 0) {
+      $routes=Get-AzRouteTable -ResourceGroupName $ResourceGroupName
+    } else {
+      $routes=Get-AzRouteTable
+    }
+
     $routelist = New-Object System.Collections.ArrayList
-    $routes=Get-AzRouteTable
+    
     foreach ($route in $routes)
       {
         if ($route.Subnets.Count -eq 0) {
@@ -38,5 +47,5 @@ function global:Get-AzSMUnusedRouteTables {
       }
   
       Return $routelist
-  }
-  Export-ModuleMember -Function Get-AzSMUnusedRouteTables
+}
+Export-ModuleMember -Function Get-AzSMUnusedRouteTables

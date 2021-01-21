@@ -6,6 +6,8 @@ function global:Get-AzSMUnusedNICs {
         Lists unused NICs in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Network.Models.PSNetworkInterface
         .EXAMPLE
@@ -29,14 +31,19 @@ function global:Get-AzSMUnusedNICs {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$true)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
-    $nics=Get-AzNetworkInterface|Where-Object{!$_.VirtualMachine}
-      
-      Return $nics
-  }
-  Export-ModuleMember -Function Get-AzSMUnusedNICs
+    if ($ResourceGroupName.Length -gt 0) {
+      $nics=Get-AzNetworkInterface -ResourceGroupName $ResourceGroupName|Where-Object{!$_.VirtualMachine}
+    } else {
+      $nics=Get-AzNetworkInterface|Where-Object{!$_.VirtualMachine}
+    }
+
+    Return $nics
+}
+Export-ModuleMember -Function Get-AzSMUnusedNICs

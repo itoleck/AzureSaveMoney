@@ -7,6 +7,8 @@ function global:Get-AzSMVMScaleinfo {
         List all Virtual Machine scaling recommendations for a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         String recommendations.
         .EXAMPLE
@@ -29,13 +31,19 @@ function global:Get-AzSMVMScaleinfo {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$true)][string] $ResourceGroupName
     )
   
     $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
     
-    $rgs=Get-AzResourceGroup
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
+
     foreach ($r in $rgs)
     {
       $vms=get-azvm -ResourceGroupName $r.ResourceGroupName
