@@ -39,9 +39,9 @@ function global:Get-AzSMUnusedNICs {
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
     if ($ResourceGroupName.Length -gt 0) {
-      $nics=Get-AzNetworkInterface -ResourceGroupName $ResourceGroupName|Where-Object{!$_.VirtualMachine}
+      $nics=Get-AzNetworkInterface -ResourceGroupName $ResourceGroupName|Where-Object{!$_.VirtualMachine -and !$_.PrivateEndpoint}
     } else {
-      $nics=Get-AzNetworkInterface|Where-Object{!$_.VirtualMachine}
+      $nics=Get-AzNetworkInterface|Where-Object{!$_.VirtualMachine -and !$_.PrivateEndpoint}
     }
 
     Return $nics
