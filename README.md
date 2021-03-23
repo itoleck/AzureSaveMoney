@@ -78,9 +78,9 @@ Install-Module -Path <path to AzureSaveMoney.psm1>
 
 Examples:
 
-This will report all of the unused resource checks that are included in the module in a subscription.
+This will report all of the unused resource checks that are included in the module in a subscription and Tenant with old resource date checks back 31 days.
 
-    Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000
+    Get-AzSMAllResources -Subscription 00000000-0000-0000-0000-000000000000 -TenantID 00000000-0000-0000-0000-000000000000 -Days 31
 
 This will report only the unused Network Interfaces in a subscription.
 
