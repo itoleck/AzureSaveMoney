@@ -24,6 +24,7 @@ function global:Get-AzSMTrafficManagerProfilesWithNoEndpoints {
   )]
 
   param(
+
     [Parameter(Mandatory=$true)][string] $SubscriptionID,
     [Parameter(Mandatory=$false)][string] $ResourceGroupName
   )
@@ -38,5 +39,6 @@ function global:Get-AzSMTrafficManagerProfilesWithNoEndpoints {
   }
 
   Return $dtmpro
+
 }
 Export-ModuleMember -Function Get-AzSMTrafficManagerProfilesWithNoEndpoints
