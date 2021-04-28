@@ -7,6 +7,8 @@ function global:Get-AzSMUnusedAlertActionGroups {
         Lists unused Alert Action Groups in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Insights.OutputClasses.PSActionGroupResource
         .EXAMPLE
@@ -26,14 +28,21 @@ function global:Get-AzSMUnusedAlertActionGroups {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
+
     $actiongroups2 = New-Object System.Collections.ArrayList
-    $rgs=Get-AzResourceGroup
+
     foreach ($rg in $rgs) {
       $ags=Get-AzResource -ResourceGroupName $rg.ResourceGroupName -ResourceType microsoft.insights/actionGroups
       foreach ($a in $ags) {

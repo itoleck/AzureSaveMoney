@@ -7,6 +7,8 @@ function global:Get-AzSMOldSnapshots {
         List snapshots older than 365 days in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .PARAMETER Days
           Set to the number of days to scan back for old deployments.
           Default is 365 days old.
@@ -26,14 +28,19 @@ function global:Get-AzSMOldSnapshots {
   
     param(
       [Parameter(Mandatory=$true)][string] $SubscriptionID,
-          [int] $Days = 365
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName,
+      [int] $Days = 365
     )
   
     $null = Set-AzContext -SubscriptionId $SubscriptionID
-      Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
-  
+    Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
+
+    if ($ResourceGroupName.Length -gt 0) {
+      $snap=Get-AzSnapshot -ResourceGroupName $ResourceGroupName|Where-Object{$_.TimeCreated -lt (Get-Date).AddDays(-$Days)}
+    } else {
       $snap=Get-AzSnapshot|Where-Object{$_.TimeCreated -lt (Get-Date).AddDays(-$Days)}
-      
-      Return $snap
-  }
-  Export-ModuleMember -Function Get-AzSMOldSnapshots
+    }
+
+    Return $snap
+}
+Export-ModuleMember -Function Get-AzSMOldSnapshots

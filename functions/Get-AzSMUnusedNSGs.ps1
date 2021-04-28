@@ -7,6 +7,8 @@ function global:Get-AzSMUnusedNSGs {
         Lists unused NSGs in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Network.Models.PSNetworkSecurityGroup
         .EXAMPLE
@@ -30,14 +32,19 @@ function global:Get-AzSMUnusedNSGs {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
-  
-    $nsg=Get-AzNetworkSecurityGroup|Where-Object{!$_.NetworkInterfaces -and !$_.Subnets}
-      
+
+    if ($ResourceGroupName.Length -gt 0) {
+      $nsg=Get-AzNetworkSecurityGroup -ResourceGroupName $ResourceGroupName|Where-Object{!$_.NetworkInterfaces -and !$_.Subnets}
+    } else {
+      $nsg=Get-AzNetworkSecurityGroup|Where-Object{!$_.NetworkInterfaces -and !$_.Subnets}
+    }
+
     Return $nsg
-  }
-  Export-ModuleMember -Function Get-AzSMUnusedNSGs
+}
+Export-ModuleMember -Function Get-AzSMUnusedNSGs

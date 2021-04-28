@@ -7,6 +7,8 @@ function global:Get-AzSMEmptySubnets {
         Lists empty subnets in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Selected.Microsoft.Azure.Commands.Network.Models.PSVirtualNetwork
         .EXAMPLE
@@ -26,13 +28,19 @@ function global:Get-AzSMEmptySubnets {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
-    $vn=Get-AzVirtualNetwork
+    if ($ResourceGroupName.Length -gt 0) {
+      $vn=Get-AzVirtualNetwork -ResourceGroupName $ResourceGroupName
+    } else {
+      $vn=Get-AzVirtualNetwork
+    }
+
     $emptysubnets=$vn|Where-Object{$_.Subnets.IpConfigurations.count -eq 0}|select-object @{n="VNet";e="Name"},Subnets
     
     Return $emptysubnets

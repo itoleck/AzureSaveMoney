@@ -7,6 +7,8 @@ function global:Get-AzSMVMsNotDeletedAfterImage {
         List virtual machines that were not deleted after a generalized image in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         AzureSaveMoney.MyRGandName
         .EXAMPLE
@@ -22,25 +24,31 @@ function global:Get-AzSMVMsNotDeletedAfterImage {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
   
-    $vms = New-Object System.Collections.ArrayList
-  $images=Get-Azimage -WarningAction Ignore
-  
-  foreach ($image in $images)
-    {
-      $svm=Get-AzResource -ResourceId $image.SourceVirtualMachine.Id -ErrorAction Ignore -WarningAction Ignore
-      if ($svm){
-                $vm=New-Object MyRGandName
-                $vm.RG=$svm.ResourceGroupName
-                $vm.Name=$svm.Name
-                $vms.Add($vm)
-      }
+    if ($ResourceGroupName.Length -gt 0) {
+      $images=Get-Azimage -ResourceGroupName $ResourceGroupName -WarningAction Ignore
+    } else {
+      $images=Get-Azimage -WarningAction Ignore
     }
-    Return $vms|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="VMName";e="Name"}
+
+    $vms = New-Object System.Collections.ArrayList
+    
+    foreach ($image in $images)
+      {
+        $svm=Get-AzResource -ResourceId $image.SourceVirtualMachine.Id -ErrorAction Ignore -WarningAction Ignore
+        if ($svm){
+                  $vm=New-Object MyRGandName
+                  $vm.RG=$svm.ResourceGroupName
+                  $vm.Name=$svm.Name
+                  $vms.Add($vm)
+        }
+      }
+      Return $vms|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="VMName";e="Name"}
  }
  Export-ModuleMember -Function Get-AzSMVMsNotDeletedAfterImage

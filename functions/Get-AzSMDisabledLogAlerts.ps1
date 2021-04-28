@@ -7,6 +7,8 @@ function global:Get-AzSMDisabledLogAlerts {
         List disabled Activity Log alerts in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         AzureSaveMoney.MyRGandName
         .EXAMPLE
@@ -23,15 +25,22 @@ function global:Get-AzSMDisabledLogAlerts {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
     $logalerts = New-Object System.Collections.ArrayList
-    $rg=Get-AzResourceGroup
-    foreach ($r in $rg)
+    
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
+    
+    foreach ($r in $rgs)
     {
       $a=Get-AzActivityLogAlert -ResourceGroupName $r.ResourceGroupName -WarningAction Ignore -ErrorAction Ignore|Where-Object{$_.Enabled -eq $false}
   

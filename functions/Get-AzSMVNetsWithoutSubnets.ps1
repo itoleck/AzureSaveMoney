@@ -7,6 +7,8 @@ function global:Get-AzSMVNetsWithoutSubnets {
         List VNets without any subnets defined in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Network.Models.PSVirtualNetwork
         .EXAMPLE
@@ -22,21 +24,27 @@ function global:Get-AzSMVNetsWithoutSubnets {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
+    if ($ResourceGroupName.Length -gt 0) {
+      $vnets=Get-AzVirtualNetwork -ResourceGroupName $ResourceGroupName
+    } else {
+      $vnets=Get-AzVirtualNetwork
+    }
+
     $emptysubnets=New-Object System.Collections.ArrayList
-    $vnets=Get-AzVirtualNetwork
+    
     foreach ($vnet in $vnets) {
       if ($vnet.Subnets.Count -eq 0) {
         $null = $emptysubnets.add($vnet)
-        #Write-Output "VNet without subnets defined found: " + $vnet.Name
       }
     }
   
       Return $emptysubnets
-  }
-  Export-ModuleMember -Function Get-AzSMVNetsWithoutSubnets
+}
+Export-ModuleMember -Function Get-AzSMVNetsWithoutSubnets

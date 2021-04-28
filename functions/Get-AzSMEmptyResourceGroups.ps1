@@ -7,6 +7,8 @@ function global:Get-AzSMEmptyResourceGroups {
         Lists empty resource groups in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup
         .EXAMPLE
@@ -26,14 +28,20 @@ function global:Get-AzSMEmptyResourceGroups {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
       $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
   
     $emptyrgs = New-Object System.Collections.ArrayList
-    $rgs=Get-AzResourceGroup
+    
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
   
     $rgs|ForEach-Object {
       $rgd=Get-AzResource -ResourceGroupName $_.ResourceGroupName -WarningAction SilentlyContinue -ErrorAction SilentlyContinue -ErrorVariable $rgerr

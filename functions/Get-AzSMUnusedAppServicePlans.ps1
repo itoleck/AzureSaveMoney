@@ -7,6 +7,8 @@ function global:Get-AzSMUnusedAppServicePlans {
         Lists unused App Service Plans in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan
         .EXAMPLE
@@ -30,14 +32,19 @@ function global:Get-AzSMUnusedAppServicePlans {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
-  
-    $app=Get-AzAppServicePlan|Where-Object{$_.NumberOfSites -eq 0}
-      
+
+    if ($ResourceGroupName.Length -gt 0) {
+      $app=Get-AzAppServicePlan -ResourceGroupName $ResourceGroupName|Where-Object{$_.NumberOfSites -eq 0}
+    } else {
+      $app=Get-AzAppServicePlan|Where-Object{$_.NumberOfSites -eq 0}
+    }
+
     Return $app
-  }
-  Export-ModuleMember -Function Get-AzSMUnusedAppServicePlans
+}
+Export-ModuleMember -Function Get-AzSMUnusedAppServicePlans

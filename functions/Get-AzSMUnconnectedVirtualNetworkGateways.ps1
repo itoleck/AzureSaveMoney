@@ -7,6 +7,8 @@ function global:Get-AzSMUnconnectedVirtualNetworkGateways {
         List Virtual Network Gateway Connections in states other than 'Connected' in a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         Microsoft.Azure.Commands.Network.Models.PSVirtualNetworkGatewayConnection
         .EXAMPLE
@@ -16,7 +18,7 @@ function global:Get-AzSMUnconnectedVirtualNetworkGateways {
         .NOTES
         * CAN be piped to Remove-AzVirtualNetworkGatewayConnection but may show erroneous error. Use -ErrorAction SilentlyContinue to suppress error.
         "Remove-AzVirtualNetworkGatewayConnection : The input object cannot be bound to any parameters for the command either because the command does not take pipeline input or
-  the input and its properties do not match any of the parameters that take pipeline input."
+        the input and its properties do not match any of the parameters that take pipeline input."
         .LINK
     #>
   
@@ -26,14 +28,22 @@ function global:Get-AzSMUnconnectedVirtualNetworkGateways {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
-      $null = Set-AzContext -SubscriptionId $SubscriptionID
+    $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
   
     $vngwconns = New-Object System.Collections.ArrayList
-    Get-AzResourceGroup|ForEach-Object {
+    
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
+
+    $rgs|ForEach-Object {
   
       $rg=$_.ResourceGroupName
       $vngwconn=Get-AzVirtualNetworkGatewayConnection -ResourceGroupName $rg
@@ -50,5 +60,5 @@ function global:Get-AzSMUnconnectedVirtualNetworkGateways {
     }
   
     Return $vngwconns
-  }
-  Export-ModuleMember -Function Get-AzSMUnconnectedVirtualNetworkGateways
+}
+Export-ModuleMember -Function Get-AzSMUnconnectedVirtualNetworkGateways

@@ -7,10 +7,12 @@ function global:Get-AzSMAppServicePlanScaleinfo {
         List all App Service Plan scaling recommendations for a subscription.
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
+        .PARAMETER ResourceGroupName
+        A single Azure resource group name to scope query to
         .OUTPUTS
         String recommendations.
         .EXAMPLE
-        Get-AzSMAppServicePlanScaleinfo -Subscription 00000000-0000-0000-0000-000000000000
+        Get-AzSMAppServicePlanScaleinfo -Subscription 00000000-0000-0000-0000-000000000000 -ResourceGroupName RG1
         APPPLANNAME - Low average CPU usage detected (8.00125)%. Scale down VM size.
         APPPLANNAME - Average CPU usage normal (64.4690909090909)%. Stay at current VM size.
         APPPLANNAME - High average CPU use detected (84.2233333333333)%. Scale up VM size.
@@ -29,13 +31,19 @@ function global:Get-AzSMAppServicePlanScaleinfo {
     )]
   
     param(
-      [Parameter(Mandatory=$true)][string] $SubscriptionID
+      [Parameter(Mandatory=$true)][string] $SubscriptionID,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
     $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription ID: {0}' -f $SubscriptionID)
     
-    $rgs=Get-AzResourceGroup
+    if ($ResourceGroupName.Length -gt 0) {
+      $rgs=Get-AzResourceGroup -Name $ResourceGroupName
+    } else {
+      $rgs=Get-AzResourceGroup
+    }
+
     foreach ($r in $rgs)
     {
       $vms=Get-AzAppServicePlan -ResourceGroupName $r.ResourceGroupName
