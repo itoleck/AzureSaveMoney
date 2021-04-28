@@ -25,25 +25,43 @@ function global:Get-AzSMEmptyNotificationHubNamespaces {
     )]
 
     param(
-        [Parameter(Mandatory = $true)][string] $SubscriptionID
+        [Parameter(Mandatory = $true)][string] $SubscriptionID,
+        [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
 
     $null = Set-AzContext -SubscriptionId $SubscriptionID
     Write-Debug ('Subscription: {0}' -f $SubscriptionID)
 
-    foreach ($NotificationHubNamespace in Get-AzNotificationHubsNamespace) {
-        $GetAzResourceParameters = @{
-            ResourceType      = 'Microsoft.NotificationHubs/namespaces/notificationHubs'
-            ResourceGroupName = $NotificationHubNamespace.ResourceGroupName
-            ResourceName      = $NotificationHubNamespace.Name
-            ApiVersion        = '2017-04-01'
-            ErrorAction       = 'SilentlyContinue'
+    if ($ResourceGroupName.Length -gt 0) {
+        foreach ($NotificationHubNamespace in Get-AzNotificationHubsNamespace -ResourceGroup $ResourceGroupName) {
+            $GetAzResourceParameters = @{
+                ResourceType      = 'Microsoft.NotificationHubs/namespaces/notificationHubs'
+                ResourceGroupName = $NotificationHubNamespace.ResourceGroupName
+                ResourceName      = $NotificationHubNamespace.Name
+                ApiVersion        = '2017-04-01'
+                ErrorAction       = 'SilentlyContinue'
+            }
+            $NotificationHub = Get-AzResource @GetAzResourceParameters
+            if (!$NotificationHub) {
+                $NotificationHubNamespace
+            }
         }
-        $NotificationHub = Get-AzResource @GetAzResourceParameters
-        if (!$NotificationHub) {
-            $NotificationHubNamespace
+    } else {
+        foreach ($NotificationHubNamespace in Get-AzNotificationHubsNamespace) {
+            $GetAzResourceParameters = @{
+                ResourceType      = 'Microsoft.NotificationHubs/namespaces/notificationHubs'
+                ResourceGroupName = $NotificationHubNamespace.ResourceGroupName
+                ResourceName      = $NotificationHubNamespace.Name
+                ApiVersion        = '2017-04-01'
+                ErrorAction       = 'SilentlyContinue'
+            }
+            $NotificationHub = Get-AzResource @GetAzResourceParameters
+            if (!$NotificationHub) {
+                $NotificationHubNamespace
+            }
         }
     }
+
 }
 
 Export-ModuleMember -Function Get-AzSMEmptyNotificationHubNamespaces

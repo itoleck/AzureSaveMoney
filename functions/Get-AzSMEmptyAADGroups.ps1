@@ -27,7 +27,7 @@ function global:Get-AzSMEmptyAADGroups {
       [Parameter(Mandatory=$false)][string] $CertificateThumbprint = $null
     )
   
-    If ($Applicationid -ne $null -AND $CertificateThumbprint -ne $null) {
+    If (-not [string]::IsNullOrEmpty($Applicationid) -AND -not [string]::IsNullOrEmpty($CertificateThumbprint)) {
       $Applicationid
       $CertificateThumbprint
       $null = Connect-AzureAD -TenantId $TenantID -ApplicationId $Applicationid -CertificateThumbprint $CertificateThumbprint
