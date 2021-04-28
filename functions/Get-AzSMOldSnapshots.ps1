@@ -28,7 +28,7 @@ function global:Get-AzSMOldSnapshots {
   
     param(
       [Parameter(Mandatory=$true)][string] $SubscriptionID,
-      [Parameter(Mandatory=$true)][string] $ResourceGroupName,
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName,
       [int] $Days = 365
     )
   

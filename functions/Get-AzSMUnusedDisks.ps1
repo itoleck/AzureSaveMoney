@@ -25,7 +25,7 @@ function global:Get-AzSMUnusedDisks {
   
     param(
       [Parameter(Mandatory=$true)][string] $SubscriptionID,
-      [Parameter(Mandatory=$true)][string] $ResourceGroupName
+      [Parameter(Mandatory=$false)][string] $ResourceGroupName
     )
   
     $null = Set-AzContext -SubscriptionId $SubscriptionID
