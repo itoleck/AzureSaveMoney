@@ -8,14 +8,14 @@ function global:Get-AzSMEmptyNotificationHubNamespaces {
         .PARAMETER SubscriptionID
         Azure subscription ID in the format, 00000000-0000-0000-0000-000000000000
         .OUTPUTS
-        AzureSaveMoney.MyRGandName
+        Microsoft.Azure.Commands.NotificationHubs.Models.NamespaceAttributes
         .EXAMPLE
         Get-AzSMEmptyNotificationHubNamespaces -Subscription 00000000-0000-0000-0000-000000000000
         Get a list of NotificationHubsNamespaces with no NotificationHub in a subscription.
         .EXAMPLE
         .
         .NOTES
-        .
+        * CANNOT be piped to Remove-AzSMEmptyNotificationHubNamespaces as the cmdlet does not take pipeline input.
         .LINK
     #>
 

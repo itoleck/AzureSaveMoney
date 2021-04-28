@@ -13,9 +13,11 @@ function global:Get-AzSMEmptyFunctionApps {
         Get-AzSMEmptyFunctionApps -Subscription 00000000-0000-0000-0000-000000000000
         Get a list of FunctionApps with no function in a subscription.
         .EXAMPLE
-        .
+        Get-AzSMEmptyFunctionApps -SubscriptionID 00000000-0000-0000-0000-000000000000 -ResourceGroupName <RG>|Remove-AzFunctionApp
         .NOTES
-        Will only find empty FunctionApps that are running - We can't see functions in stopped FunctionApps.
+        * Will only find empty FunctionApps that are running - We can't see functions in stopped FunctionApps.
+        * CAN be piped to Remove-AzFunctionApp.
+        * When piping to remove resources, include the -force parameter to supress prompts.
         .LINK
     #>
 
