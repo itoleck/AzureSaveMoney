@@ -6,7 +6,7 @@ Import-Module AzureAD
 
 #For updating local module during testing
 Set-Location -Path $env:USERPROFILE\source\repos\AzureSaveMoney
-Import-Module .\AzureSaveMoney.psd1 -Verbose -Force -Scope Local -MinimumVersion 1.0.xx
+Import-Module .\AzureSaveMoney.psd1 -Verbose -Force -Scope Local -MinimumVersion 1.0.18
 Get-Module AzureSaveMoney -Verbose
 
 #Login before running Azure commands
