@@ -1,4 +1,4 @@
-﻿#requires -Version 5.0 -Modules Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD
+﻿#requires -Version 5.0 -Modules Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement
 #!/usr/bin/env powershell
 # Contributors:
 # Chad Schultz (MSFT)
