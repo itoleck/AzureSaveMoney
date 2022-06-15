@@ -66,6 +66,10 @@ Includes ability to report on all unused resources in a single command, Get-AzSM
 
 # Getting Started
 
+Install dependencies.
+
+PS> Install-Module AzureSaveMoney, Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement, Az.Monitor, Az.Websites, Az.ServiceBus, Az.Batch, Az.Functions, Az.NotificationHubs
+
 Install module form the PowerShell Gallery.
 
 PS> Install-Module -Name AzureSaveMoney
@@ -77,6 +81,10 @@ Download the .psm1 PowerShell module from the repository; https://github.com/ito
 Install-Module -Path <path to AzureSaveMoney.psm1>
 
 Examples:
+
+Get list of Azure Subscription and Tenants
+
+    Get-AzSubscription
 
 This will report all of the unused resource checks that are included in the module in a subscription and Tenant with old resource date checks back 31 days.
 
