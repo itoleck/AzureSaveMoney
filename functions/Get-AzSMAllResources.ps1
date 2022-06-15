@@ -48,13 +48,13 @@ function global:Get-AzSMAllResources {
       Write-Output ('Subscription ID: {0}' -f $SubscriptionID)
       Write-Output ("Days: {0}`n" -f $Days)
 
-      Write-Output 'Ununsed NICs:'
+      Write-Output 'Unused NICs:'
       Get-AzSMUnusedNICs -Subscription $SubscriptionID
 
-      Write-Output 'Ununsed NSGs:'
+      Write-Output 'Unused NSGs:'
       Get-AzSMUnusedNSGs -Subscription $SubscriptionID
 
-      Write-Output 'Ununsed PIPs:'
+      Write-Output 'Unused PIPs:'
       Get-AzSMUnusedPIPs -Subscription $SubscriptionID
 
       Write-Output 'Disabled Alerts(Classic):'
@@ -66,10 +66,10 @@ function global:Get-AzSMAllResources {
       Write-Output 'Empty Resource Groups:'
       Get-AzSMEmptyResourceGroups -Subscription $SubscriptionID
 
-      Write-Output 'Ununsed Alert Groups:'
+      Write-Output 'Unused Alert Groups:'
       Get-AzSMUnusedAlertActionGroups -Subscription $SubscriptionID
 
-      Write-Output 'Ununsed Route Tables:'
+      Write-Output 'Unused Route Tables:'
       Get-AzSMUnusedRouteTables -Subscription $SubscriptionID
 
       Write-Output 'VNets without Subnets:'
@@ -78,7 +78,7 @@ function global:Get-AzSMAllResources {
       Write-Output ('Old Deployments older than {0} days:' -f $Days)
       Get-AzSMOldDeployments -Subscription $SubscriptionID
 
-      Write-Output 'Ununsed Disks:'
+      Write-Output 'Unused Disks:'
       Get-AzSMUnusedDisks -Subscription $SubscriptionID
 
       Write-Output 'Empty AAD Groups:'
