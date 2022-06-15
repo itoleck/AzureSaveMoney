@@ -68,7 +68,7 @@ Includes ability to report on all unused resources in a single command, Get-AzSM
 
 Install dependencies.
 
-PS> Install-Module AzureSaveMoney, Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement, Az.Monitor, Az.Websites, Az.ServiceBus, Az.Batch, Az.Functions, Az.NotificationHubs
+PS> Install-Module Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement, Az.Monitor, Az.Websites, Az.ServiceBus, Az.Batch, Az.Functions, Az.NotificationHubs
 
 Install module form the PowerShell Gallery.
 
