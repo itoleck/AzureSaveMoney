@@ -77,7 +77,5 @@ function global:Get-AzSMCostReport {
     Invoke-AzCostManagementExecuteExport -ExportName "AzSM-CostManagementExport" -Scope "subscriptions/$SubscriptionID"
     
     #Find the latest report export
-    
-
-    
+     
 }

@@ -41,13 +41,16 @@ function global:Get-AzSMVMsNotDeletedAfterImage {
     
     foreach ($image in $images)
       {
-        $svm=Get-AzResource -ResourceId $image.SourceVirtualMachine.Id -ErrorAction Ignore -WarningAction Ignore
-        if ($svm){
-                  $vm=New-Object MyRGandName
-                  $vm.RG=$svm.ResourceGroupName
-                  $vm.Name=$svm.Name
-                  $vms.Add($vm)
+        try {
+          $svm=Get-AzResource -ResourceId $image.SourceVirtualMachine.Id -ErrorAction Ignore -WarningAction Ignore
+          if ($svm){
+            $vm=New-Object MyRGandName
+            $vm.RG=$svm.ResourceGroupName
+            $vm.Name=$svm.Name
+            $vms.Add($vm)
         }
+        }
+        catch {}
       }
       Return $vms|Select-Object @{n="ResourceGroupName";e="RG"}, @{n="VMName";e="Name"}
  }

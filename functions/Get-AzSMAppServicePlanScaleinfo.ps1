@@ -67,7 +67,7 @@ function global:Get-AzSMAppServicePlanScaleinfo {
         } else {
           try{
             $vmusage=($avg.Average |Measure-Object -Average).Average
-          }catch{}
+          } catch {}
           
         }
   
