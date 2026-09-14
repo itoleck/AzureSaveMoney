@@ -29,6 +29,8 @@ Unused Rout Tables
 
 Unused Managed Disks
 
+Storage Accounts with higher cost Hierarchical namespace or SFTP enabled
+
 Empty AAD Groups
 
 Disabled Logic Apps
@@ -47,6 +49,8 @@ Unconnected Virtual Network Gateways
 
 Expired Webhooks
 
+App Service certificates expiring within 31 days or already expired
+
 Virtual Machine performance information for manual scaling
 
 App Service Plan performance information for manual scaling
@@ -55,11 +59,17 @@ Unused App Service Plans
 
 Empty subnets
 
+Private Endpoints with no connections
+
 Disabled Service Bus Queues
 
 Batch Accounts without applications
 
 Virtual Machines not deleted after generalizing and imaging
+
+Subscriptions with no cost budgets set
+
+Estimated monthly and yearly cost savings of removing resources, Get-AzSMCostSavingsEstimate
 
 Includes ability to report on all unused resources in a single command, Get-AzSMAllResources.
 
@@ -68,7 +78,7 @@ Includes ability to report on all unused resources in a single command, Get-AzSM
 
 Install dependencies.
 
-PS> Install-Module Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement, Az.Monitor, Az.Websites, Az.ServiceBus, Az.Batch, Az.Functions, Az.NotificationHubs
+PS> Install-Module Az.Accounts, Az.Automation, Az.Compute, Az.LogicApp, Az.Network, Az.Resources, Az.TrafficManager, AzureAD, Az.CostManagement, Az.Monitor, Az.Websites, Az.ServiceBus, Az.Batch, Az.Functions, Az.NotificationHubs, Az.Billing, Az.Storage
 
 Install module form the PowerShell Gallery.
 
@@ -98,6 +108,10 @@ Most commands can be piped to remove the reported resources. Check get-help for 
 This will remove all unused Network Security Groups from a subscription with confirmation.
 
     Get-AzSMUnusedNSGs -Subscription 00000000-0000-0000-0000-000000000000|Remove-AzureRmNetworkSecurityGroups
+
+Commands that return Azure resources can be piped to Get-AzSMCostSavingsEstimate to estimate the monthly and yearly savings of removing the resources, from the last 30 days of cost. Requires Cost Management Reader access.
+
+    Get-AzSMUnusedAppServicePlans -SubscriptionID 00000000-0000-0000-0000-000000000000|Get-AzSMCostSavingsEstimate
 
 
 There is support for PowerShell help.

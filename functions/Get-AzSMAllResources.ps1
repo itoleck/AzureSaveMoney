@@ -48,6 +48,10 @@ function global:Get-AzSMAllResources {
       Write-Output ('Subscription ID: {0}' -f $SubscriptionID)
       Write-Output ("Days: {0}`n" -f $Days)
 
+      Write-Output 'Budgets:'
+      $budgets = Get-AzSMBudgets -SubscriptionID $SubscriptionID -WarningAction SilentlyContinue
+      if ($budgets) { $budgets } else { Write-Output 'No budgets are set in the subscription.' }
+
       Write-Output 'Unused NICs:'
       Get-AzSMUnusedNICs -Subscription $SubscriptionID
 
@@ -81,6 +85,9 @@ function global:Get-AzSMAllResources {
       Write-Output 'Unused Disks:'
       Get-AzSMUnusedDisks -Subscription $SubscriptionID
 
+      Write-Output 'Storage Accounts with Hierarchical namespace or SFTP enabled:'
+      Get-AzSMHighCostStorageAccounts -SubscriptionID $SubscriptionID
+
       Write-Output 'Empty AAD Groups:'
       Get-AzSMEmptyAADGroups -TenantId $TenantID
 
@@ -108,11 +115,17 @@ function global:Get-AzSMAllResources {
       Write-Output 'Expired Webhooks:'
       Get-AzSMExpiredWebhooks -SubscriptionID $SubscriptionID
 
+      Write-Output 'App Service Certificates expiring within 31 days or expired:'
+      Get-AzSMExpiringWebAppCertificates -SubscriptionID $SubscriptionID
+
       Write-Output 'VM CPU scaling info:'
       Get-AzSMVMScaleinfo -SubscriptionID $SubscriptionID
 
       Write-Output 'Empty Subnets:'
       Get-AzSMEmptySubnets -SubscriptionID $SubscriptionID
+
+      Write-Output 'Private Endpoints with no connections:'
+      Get-AzSMUnusedPrivateEndpoints -SubscriptionID $SubscriptionID
 
       Write-Output 'Unused App Service Plans:'
       Get-AzSMUnusedAppServicePlans -SubscriptionID $SubscriptionID
